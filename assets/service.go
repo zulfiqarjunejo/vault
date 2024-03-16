@@ -10,17 +10,25 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type AssetModelImpl struct {
+type CreateAssetService interface {
+	CreateAsset(Asset) (Asset, error)
+}
+
+type FindAssetsService interface {
+	FindAssets() ([]Asset, error)
+}
+
+type AssetService struct {
 	Mongo *mongo.Client
 }
 
-func NewAssetModelImpl(mongo *mongo.Client) AssetModelImpl {
-	return AssetModelImpl{
+func NewAssetService(mongo *mongo.Client) AssetService {
+	return AssetService{
 		Mongo: mongo,
 	}
 }
 
-func (model *AssetModelImpl) CreateAsset(asset Asset) (Asset, error) {
+func (model *AssetService) CreateAsset(asset Asset) (Asset, error) {
 	asset.Id = uuid.NewString()
 	asset.CreatedAt = time.Now()
 
@@ -30,7 +38,7 @@ func (model *AssetModelImpl) CreateAsset(asset Asset) (Asset, error) {
 	return asset, err
 }
 
-func (model *AssetModelImpl) FindAssets() ([]Asset, error) {
+func (model *AssetService) FindAssets() ([]Asset, error) {
 	assetsCollection := model.Mongo.Database("vault").Collection("assets")
 
 	filter := bson.D{}

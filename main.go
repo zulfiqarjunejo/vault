@@ -5,54 +5,38 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"time"
 
-	"github.com/joho/godotenv"
 	"github.com/zulfiqarjunejo/vault/assets"
-	"go.mongodb.org/mongo-driver/mongo"
-	mongoOptions "go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
-	err := godotenv.Load(".env", ".env.local")
+	environment, err := NewEnvironment()
 	if err != nil {
-		log.Fatalf("Error loading environment variables: %s", err.Error())
+		log.Fatalf("Error loading environment variables: %+v", err.Error())
 	}
 
-	PORT := os.Getenv("PORT")
-	MONGO_URL := os.Getenv("MONGO_URL")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	client, err := mongo.Connect(ctx, mongoOptions.Client().ApplyURI(MONGO_URL))
+	mongoClient, err := NewMongoClient(environment)
 	if err != nil {
 		log.Fatalf("MongoDB connection failed: %+v", err.Error())
 	}
 	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
+		if err = mongoClient.Disconnect(context.Background()); err != nil {
 			panic(err)
 		}
 	}()
 
-	// Initialize models.
-	assetModel := assets.NewAssetModelImpl(client)
+	assetService := assets.NewAssetService(mongoClient)
 
 	mux := http.NewServeMux()
 
-	config := Config{
-		Mux:        mux,
-		AssetModel: &assetModel,
-	}
+	findAssetsHandler := assets.NewFindAssetsHandler(&assetService)
+	createAssetHandler := assets.NewCreateAssetHandler(&assetService)
 
-	err = InitRoutes(config)
-	if err != nil {
-		log.Fatalf("Route Initialization Failed: %s\n", err.Error())
-	}
+	mux.Handle("POST /assets", createAssetHandler)
+	mux.Handle("GET /assets", findAssetsHandler)
 
-	fmt.Printf("Server listening on PORT: %s \n", PORT)
-	err = http.ListenAndServe(PORT, mux)
+	fmt.Printf("Server listening on PORT: %s \n", environment.Port)
+	err = http.ListenAndServe(environment.Port, mux)
 	if err != nil {
 		log.Fatalf("Unexpected error: %+v", err.Error())
 	}
