@@ -25,15 +25,15 @@ func main() {
 		}
 	}()
 
-	assetService := assets.NewAssetService(mongoClient)
+	// assetService := assets.NewAssetService(mongoClient)
+	assetModel := assets.NewMongoAssetModel(mongoClient)
 
 	mux := http.NewServeMux()
 
-	findAssetsHandler := assets.NewFindAssetsHandler(&assetService)
-	createAssetHandler := assets.NewCreateAssetHandler(&assetService)
+	assetHandler := assets.NewAssetHandler(assetModel)
 
-	mux.Handle("POST /assets", createAssetHandler)
-	mux.Handle("GET /assets", findAssetsHandler)
+	mux.HandleFunc("POST /assets", assetHandler.CreateAsset)
+	mux.HandleFunc("GET /assets", assetHandler.FindAssets)
 
 	fmt.Printf("Server listening on PORT: %s \n", environment.Port)
 	err = http.ListenAndServe(environment.Port, mux)
