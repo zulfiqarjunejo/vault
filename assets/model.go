@@ -10,36 +10,33 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type CreateAssetService interface {
+type AssetModel interface {
 	CreateAsset(Asset) (Asset, error)
-}
-
-type FindAssetsService interface {
 	FindAssets() ([]Asset, error)
 }
 
-type AssetService struct {
-	Mongo *mongo.Client
+type MongoAssetModel struct {
+	mongo *mongo.Client
 }
 
-func NewAssetService(mongo *mongo.Client) AssetService {
-	return AssetService{
-		Mongo: mongo,
+func NewMongoAssetModel(mongo *mongo.Client) *MongoAssetModel {
+	return &MongoAssetModel{
+		mongo,
 	}
 }
 
-func (model *AssetService) CreateAsset(asset Asset) (Asset, error) {
+func (m *MongoAssetModel) CreateAsset(asset Asset) (Asset, error) {
 	asset.Id = uuid.NewString()
 	asset.CreatedAt = time.Now()
 
-	assetsCollection := model.Mongo.Database("vault").Collection("assets")
+	assetsCollection := m.mongo.Database("vault").Collection("assets")
 	_, err := assetsCollection.InsertOne(context.Background(), asset) // TODO: Process result
 
 	return asset, err
 }
 
-func (model *AssetService) FindAssets() ([]Asset, error) {
-	assetsCollection := model.Mongo.Database("vault").Collection("assets")
+func (m *MongoAssetModel) FindAssets() ([]Asset, error) {
+	assetsCollection := m.mongo.Database("vault").Collection("assets")
 
 	filter := bson.D{}
 	opts := options.Find().SetSort(bson.D{{Key: "created_at", Value: -1}})
