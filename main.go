@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/zulfiqarjunejo/vault/assets"
 )
@@ -36,8 +37,13 @@ func main() {
 	mux.HandleFunc("GET /assets", assetHandler.FindAssets)
 
 	fmt.Printf("Server listening on PORT: %s \n", environment.Port)
-	err = http.ListenAndServe(environment.Port, mux)
-	if err != nil {
-		log.Fatalf("Unexpected error: %+v", err.Error())
+
+	s := http.Server{
+		Addr:         fmt.Sprintf(":%s", environment.Port),
+		Handler:      mux,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 5 * time.Second,
 	}
+
+	log.Fatal(s.ListenAndServe())
 }
