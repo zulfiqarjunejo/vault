@@ -51,9 +51,12 @@ const AssetDetail: React.FC = () => {
         Asset Details
         <BackButton />
       </h2>
-      {asset && <AssetInformation asset={asset} />}
 
-      {asset && <FileAttachment assetId={asset!.id} />}
+      <div className="columns-2">
+        {asset && <AssetInformation asset={asset} />}
+
+        {asset && <FileAttachment assetId={asset!.id} />}
+      </div>
 
       {fileUploads?.length > 0 && <FileUploadList fileUploads={fileUploads} />}
     </div>
