@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/zulfiqarjunejo/vault/assets"
+	"github.com/zulfiqarjunejo/vault/middleware"
 )
 
 func main() {
@@ -26,21 +27,24 @@ func main() {
 		}
 	}()
 
-	// assetService := assets.NewAssetService(mongoClient)
 	assetModel := assets.NewMongoAssetModel(mongoClient)
 
 	mux := http.NewServeMux()
 
 	assetHandler := assets.NewAssetHandler(assetModel)
 
-	mux.HandleFunc("POST /assets", assetHandler.CreateAsset)
-	mux.HandleFunc("GET /assets", assetHandler.FindAssets)
+	mux.HandleFunc("GET /assets", assetHandler.HandleFindAssets)
+	mux.HandleFunc("GET /assets/{id}", assetHandler.HandleGetAsset)
+	mux.HandleFunc("GET /assets/{id}/files", assetHandler.HandleGetAssetFiles)
 
-	fmt.Printf("Server listening on PORT: %s \n", environment.Port)
+	mux.HandleFunc("POST /assets/{id}/files", assetHandler.HandleUploadFile)
+	mux.HandleFunc("POST /assets", assetHandler.HandleCreateAsset)
+
+	fmt.Printf("Server listening on PORT: %s\n", environment.Port)
 
 	s := http.Server{
 		Addr:         fmt.Sprintf(":%s", environment.Port),
-		Handler:      mux,
+		Handler:      middleware.WithCORS(mux),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 	}
