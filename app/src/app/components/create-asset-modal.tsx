@@ -1,5 +1,3 @@
-// components/CreateAssetModal.tsx
-
 import React, { useState } from "react";
 import { CreateAssetRequest, AssetType } from "@/app/types";
 
@@ -32,22 +30,17 @@ const CreateAssetModal: React.FC<{
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
-      {" "}
-      {/* Increase z-index */}
-      {/* Overlay */}
       <div
         className="absolute inset-0 bg-gray-500 opacity-50"
         onClick={onClose}
       ></div>
-      {/* Modal */}
+
       <div className="bg-white p-4 rounded shadow-lg relative z-50">
-        {" "}
-        {/* Increase z-index */}
-        <h3 className="text-lg font-semibold mb-4">Create Asset</h3>
+        <h3 className="text-lg font-semibold mb-4 text-black">Create Asset</h3>
         <div className="mb-4">
           <label
             htmlFor="name"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-gray-900 mb-2"
           >
             Name
           </label>
@@ -56,13 +49,15 @@ const CreateAssetModal: React.FC<{
             id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 p-2 border border-gray-300 rounded-md w-full text-black"
+            placeholder="My Asset"
+            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            required
           />
         </div>
         <div className="mb-4">
           <label
-            htmlFor="type"
-            className="block text-sm font-medium text-gray-700"
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-900 mb-2"
           >
             Type
           </label>
@@ -70,7 +65,7 @@ const CreateAssetModal: React.FC<{
             id="type"
             value={type}
             onChange={(e) => setType(e.target.value as AssetType)}
-            className="mt-1 p-2 border border-gray-300 rounded-md w-full text-black"
+            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
           >
             {Object.values(AssetType).map((assetType) => (
               <option key={assetType} value={assetType}>
@@ -79,16 +74,17 @@ const CreateAssetModal: React.FC<{
             ))}
           </select>
         </div>
-        <div className="flex justify-end">
+
+        <div className="flex justify-end space-x-4">
           <button
             onClick={handleCreateAsset}
-            className="px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600 focus:outline-none focus:bg-indigo-600"
+            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
           >
             Create
           </button>
           <button
             onClick={onClose}
-            className="ml-2 px-3 py-1 border border-red-500 rounded text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
           >
             Cancel
           </button>
